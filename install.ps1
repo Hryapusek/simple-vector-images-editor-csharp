@@ -1,0 +1,1 @@
+dotnet add package Cyotek.Windows.Forms.ColorPicker --version 1.7.2
