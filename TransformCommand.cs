@@ -1,11 +1,5 @@
 namespace tema7
 {
-  public interface IFigureCommand
-  {
-    void Execute();
-    void Undo();
-  }
-
   public class TransformCommand : IFigureCommand
   {
     private readonly Figure _figure;

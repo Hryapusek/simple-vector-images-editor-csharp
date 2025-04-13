@@ -7,7 +7,6 @@ namespace tema7
         GridView gridView = new();
         GroupBox groupBox = new();
         readonly Scene scene = new();
-        Point? dragStartPosition;
         Figure? figureInProgress;
 
         public Form1()
@@ -50,6 +49,7 @@ namespace tema7
             colorGrid.Location = new Point(ClientSize.Width - colorGrid.Width - 30, ClientSize.Height - colorGrid.Height - 30);
             colorGrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             colorGrid.Visible = true;
+            colorGrid.ColorChanged += (sender, e) => scene.SetColor(colorGrid.Color);
             Controls.Add(colorGrid);
         }
 

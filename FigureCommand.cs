@@ -1,9 +1,9 @@
 
 namespace tema7
 {
-  public abstract class FigureCommand
+  public interface IFigureCommand
   {
-    public abstract void Execute();
-    public abstract void Undo();
+    void Execute();
+    void Undo();
   }
 }

@@ -149,5 +149,25 @@ namespace tema7
         figure.Draw(g, figure == SelectedFigure);
       }
     }
+  
+    public void SetColor(Color color)
+    {
+      if (SelectedFigure == null)
+      {
+        Console.WriteLine("No figure selected");
+        return;
+      }
+
+      if (SelectedFigure.StrokeColor == color)
+      {
+        Console.WriteLine("Color already set");
+        return;
+      }
+
+      Console.WriteLine($"Changing color from {SelectedFigure.StrokeColor} to {color} for {SelectedFigure.GetType().Name}");
+      _undoStack.Push(new ChangeColorCommand(SelectedFigure, SelectedFigure.StrokeColor, color));
+      _redoStack.Clear();
+      SelectedFigure.StrokeColor = color;
+    }
   }
 }
