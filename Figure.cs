@@ -68,6 +68,7 @@ namespace tema7
     public abstract TransformationState GetTransformationState();
     public abstract TransformationState GetState();
     public abstract void ApplyState(TransformationState state);
+    public abstract Figure DeepClone();
   }
 
   public struct TransformationState

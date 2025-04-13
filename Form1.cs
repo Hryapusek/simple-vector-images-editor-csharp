@@ -354,20 +354,17 @@ namespace tema7
 
         private void CutSelected()
         {
-            // Implement cut logic
-            MessageBox.Show("Cut selected");
+            scene.CutSelected();
         }
 
         private void CopySelected()
         {
-            // Implement copy logic
-            MessageBox.Show("Copied to clipboard");
+            scene.CopySelected();
         }
 
         private void PasteFromClipboard()
         {
-            // Implement paste logic
-            MessageBox.Show("Pasted from clipboard");
+            scene.Paste();
         }
 
         private void DrawingPanel_MouseDown(object? sender, MouseEventArgs e)

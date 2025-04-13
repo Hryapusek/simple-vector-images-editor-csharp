@@ -34,14 +34,45 @@ namespace tema7
       TargetFigure.Size = OriginalState.Size;
     }
   }
+
+  public class AddFigureCommand : IFigureCommand
+  {
+    private readonly Scene _scene;
+    private readonly Figure _figure;
+
+    public AddFigureCommand(Scene scene, Figure figure)
+    {
+      _scene = scene;
+      _figure = figure;
+    }
+
+    public void Execute() => _scene.AddFigure(_figure);
+    public void Undo() => _scene.RemoveFigure(_figure);
+  }
+
+  public class DeleteFigureCommand : IFigureCommand
+  {
+    private readonly Scene _scene;
+    private readonly Figure _figure;
+
+    public DeleteFigureCommand(Scene scene, Figure figure)
+    {
+      _scene = scene;
+      _figure = figure;
+    }
+
+    public void Execute() => _scene.RemoveFigure(_figure);
+    public void Undo() => _scene.AddFigure(_figure);
+  }
+
   public class Scene
   {
     public List<Figure> Figures { get; } = new List<Figure>();
     public Figure? SelectedFigure { get; set; }
     public event Action? SceneChanged;
-
     private Point? dragStartPosition;
     private TransformationInfo? currentTransform;
+    private Figure? _clipboardFigure;
     private readonly Stack<IFigureCommand> _undoStack = new();
     private readonly Stack<IFigureCommand> _redoStack = new();
 
@@ -149,7 +180,7 @@ namespace tema7
         figure.Draw(g, figure == SelectedFigure);
       }
     }
-  
+
     public void SetColor(Color color)
     {
       if (SelectedFigure == null)
@@ -168,6 +199,39 @@ namespace tema7
       _undoStack.Push(new ChangeColorCommand(SelectedFigure, SelectedFigure.StrokeColor, color));
       _redoStack.Clear();
       SelectedFigure.StrokeColor = color;
+    }
+
+    public void CopySelected()
+    {
+      if (SelectedFigure != null)
+      {
+        _clipboardFigure = SelectedFigure.Clone();
+        Console.WriteLine($"Copied {SelectedFigure.GetType().Name}");
+      }
+    }
+
+    public void CutSelected()
+    {
+      if (SelectedFigure != null)
+      {
+        _clipboardFigure = SelectedFigure.Clone();
+        ApplyCommand(new DeleteFigureCommand(this, SelectedFigure));
+        Console.WriteLine($"Cut {SelectedFigure.GetType().Name}");
+      }
+    }
+
+    public void Paste()
+    {
+      if (_clipboardFigure != null)
+      {
+        var newFigure = _clipboardFigure.Clone();
+        newFigure.Position = new Point(
+            newFigure.Position.X + 20, // Offset so it doesn't overlap
+            newFigure.Position.Y + 20);
+
+        ApplyCommand(new AddFigureCommand(this, newFigure));
+        Console.WriteLine($"Pasted {newFigure.GetType().Name}");
+      }
     }
   }
 }

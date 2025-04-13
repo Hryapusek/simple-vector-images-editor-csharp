@@ -177,5 +177,17 @@ namespace tema7
       this._size = state.Size.Width;
       NotifyChanged();
     }
+
+    public override Figure DeepClone()
+    {
+      return new Square
+      {
+        Position = this.Position,
+        _size = this._size,
+        StrokeColor = this.StrokeColor,
+        StrokeWidth = this.StrokeWidth,
+        IsSelected = false // Reset selection state
+      };
+    }
   }
 }
