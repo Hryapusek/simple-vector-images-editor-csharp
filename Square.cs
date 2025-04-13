@@ -9,14 +9,15 @@ namespace tema7
     private const int HandleSize = 10; // Selection handle size
     private const int HitTestMargin = 15; // Area around handles for easier selection
 
-    public override Size Size 
-{
-    get => new Size(_size, _size);
-    set {
-      _size = Math.Max(10, value.Width); // Ignore height, enforce minimum
-      NotifyChanged();
+    public override Size Size
+    {
+      get => new Size(_size, _size);
+      set
+      {
+        _size = Math.Max(10, value.Width); // Ignore height, enforce minimum
+        NotifyChanged();
+      }
     }
-}
 
     public override void Draw(Graphics g, bool isSelected)
     {
@@ -87,7 +88,7 @@ namespace tema7
           Position = new Point(Position.X + delta.X, Position.Y);
           _size = Math.Max(10, _size + delta.Y);
           break;
-        
+
         case OperationType.Move:
           Move(delta.X, delta.Y);
           break;
@@ -97,11 +98,11 @@ namespace tema7
 
     public override TransformationState GetTransformationState()
     {
-        return new TransformationState 
-        {
-            Position = this.Position,
-            Size = (this as Figure).Size
-        };
+      return new TransformationState
+      {
+        Position = this.Position,
+        Size = (this as Figure).Size
+      };
     }
 
     public override void Resize(int dx, int dy, OperationType resizeMode)
@@ -161,6 +162,20 @@ namespace tema7
             Position.Y + _size - HandleSize / 2,
             HandleSize, HandleSize);
       }
+    }
+
+    public override TransformationState GetState() => new()
+    {
+      Position = this.Position,
+      Size = this.Size,
+    };
+
+    public override void ApplyState(TransformationState state)
+    {
+      Console.WriteLine($"Applying state: Position={state.Position}, Size={state.Size}");
+      this.Position = state.Position;
+      this._size = state.Size.Width;
+      NotifyChanged();
     }
   }
 }

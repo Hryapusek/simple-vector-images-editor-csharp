@@ -343,14 +343,13 @@ namespace tema7
 
         private void UndoAction()
         {
-            // Call your command manager's undo
-            MessageBox.Show("Undo action");
+            scene.Undo();
         }
 
         private void RedoAction()
         {
             // Call your command manager's redo
-            MessageBox.Show("Redo action");
+            scene.Redo();
         }
 
         private void CutSelected()

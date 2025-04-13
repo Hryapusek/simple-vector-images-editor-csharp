@@ -42,11 +42,43 @@ namespace tema7
 
     private Point? dragStartPosition;
     private TransformationInfo? currentTransform;
+    private readonly Stack<IFigureCommand> _undoStack = new();
+    private readonly Stack<IFigureCommand> _redoStack = new();
+
+    public void ApplyCommand(IFigureCommand command)
+    {
+      command.Execute();
+      _undoStack.Push(command);
+      _redoStack.Clear();
+      SceneChanged?.Invoke();
+    }
+
+    public void Undo()
+    {
+      if (_undoStack.Count > 0)
+      {
+        Console.WriteLine("Undoing");
+        var cmd = _undoStack.Pop();
+        cmd.Undo();
+        _redoStack.Push(cmd);
+        SceneChanged?.Invoke();
+      }
+    }
+
+    public void Redo()
+    {
+      if (_redoStack.Count > 0)
+      {
+        var cmd = _redoStack.Pop();
+        cmd.Execute();
+        _undoStack.Push(cmd);
+        SceneChanged?.Invoke();
+      }
+    }
 
     // Handle mouse down for selection
     public void HandleMouseDown(Point mousePos)
     {
-      Console.WriteLine($"Testing for selection at {mousePos}");
       SelectedFigure = Figures.LastOrDefault(f => f.Contains(mousePos));
       if (SelectedFigure == null)
       {
@@ -78,7 +110,6 @@ namespace tema7
         Console.WriteLine("No transformation in progress or no figure selected");
         return;
       }
-      Console.WriteLine($"Current operation: {currentTransform.Operation} at {mousePos}");
       currentTransform.ApplyDelta(mousePos);
       SceneChanged?.Invoke();
     }
@@ -86,6 +117,14 @@ namespace tema7
     // Handle mouse up for releasing selection
     public void HandleMouseUp(Point mousePos)
     {
+      if (currentTransform == null || SelectedFigure == null)
+      {
+        Console.WriteLine("No transformation in progress or no figure selected");
+        return;
+      }
+      Console.WriteLine($"Saving original state of {SelectedFigure.GetType().Name} at {currentTransform.OriginalState.Position}");
+      _undoStack.Push(new TransformCommand(SelectedFigure, currentTransform.OriginalState));
+      _redoStack.Clear();
     }
 
     // Add/remove figures
@@ -105,7 +144,6 @@ namespace tema7
     // Draw all figures
     public void Draw(Graphics g)
     {
-      Console.WriteLine($"Drawing {Figures.Count} figures");
       foreach (var figure in Figures)
       {
         figure.Draw(g, figure == SelectedFigure);

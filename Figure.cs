@@ -66,6 +66,8 @@ namespace tema7
     public void NotifyChanged() => FigureChanged?.Invoke();
     public abstract void ApplyTransform(Point delta, OperationType operation);
     public abstract TransformationState GetTransformationState();
+    public abstract TransformationState GetState();
+    public abstract void ApplyState(TransformationState state);
   }
 
   public struct TransformationState
