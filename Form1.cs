@@ -3,8 +3,9 @@ namespace tema7
     public partial class Form1 : Form
     {
         ToolStrips toolStrips = new();
-        Cyotek.Windows.Forms.ColorGrid colorGrid;
+        Cyotek.Windows.Forms.ColorGrid? colorGrid;
         GridView gridView = new();
+        GroupBox groupBox = new();
 
         public Form1()
         {
@@ -24,10 +25,16 @@ namespace tema7
 
         private void InitializeGridViewUI()
         {
-            gridView.Size = new Size(ClientSize.Width - colorGrid.Width - 30, ClientSize.Height);
-            gridView.Location = new Point(0, 60);
-            gridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            Controls.Add(gridView);
+            
+            this.groupBox.Size = new Size(ClientSize.Width - colorGrid.Width - 30, ClientSize.Height);
+            this.groupBox.Location = new Point(0, 60);
+            this.groupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+
+            this.gridView.Size = new Size(groupBox.Width, groupBox.Height);
+            this.gridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+
+            this.groupBox.Controls.Add(gridView);
+            this.Controls.Add(groupBox);
         }
 
         private void InitializeColorPickerUI()
@@ -160,10 +167,10 @@ namespace tema7
                 viewMenu.Image = Image.FromStream(new MemoryStream(res));
                 viewMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
             }
-            viewMenu.DropDownItems.AddRange(new ToolStripItem[] {
+            viewMenu.DropDownItems.AddRange([
                 this.toolStrips.toggleGrid,
                 this.toolStrips.gridSettings
-            });
+            ]);
 
             this.toolStrip.Items.Add(viewMenu);
         }
@@ -267,7 +274,6 @@ namespace tema7
         private void AttachEventHandlers()
         {
             // File operations
-            this.toolStrips.newFile.Click += (s, e) => NewDocument();
             this.toolStrips.openFile.Click += (s, e) => OpenDocument();
             this.toolStrips.saveFile.Click += (s, e) => SaveDocument();
 
@@ -281,16 +287,16 @@ namespace tema7
 
         class ToolStrips
         {
-            public ToolStripMenuItem newFile;
-            public ToolStripMenuItem openFile;
-            public ToolStripMenuItem saveFile;
-            public ToolStripMenuItem cut;
-            public ToolStripMenuItem copy;
-            public ToolStripMenuItem paste;
-            public ToolStripMenuItem undo;
-            public ToolStripMenuItem redo;
-            public ToolStripMenuItem toggleGrid;
-            public ToolStripMenuItem gridSettings;
+            public ToolStripMenuItem? newFile;
+            public ToolStripMenuItem? openFile;
+            public ToolStripMenuItem? saveFile;
+            public ToolStripMenuItem? cut;
+            public ToolStripMenuItem? copy;
+            public ToolStripMenuItem? paste;
+            public ToolStripMenuItem? undo;
+            public ToolStripMenuItem? redo;
+            public ToolStripMenuItem? toggleGrid;
+            public ToolStripMenuItem? gridSettings;
         }
 
         private void NewDocument()
