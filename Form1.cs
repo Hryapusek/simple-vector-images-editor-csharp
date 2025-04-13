@@ -6,6 +6,9 @@ namespace tema7
         Cyotek.Windows.Forms.ColorGrid? colorGrid;
         GridView gridView = new();
         GroupBox groupBox = new();
+        readonly Scene scene = new();
+        Point? dragStartPosition;
+        Figure? figureInProgress;
 
         public Form1()
         {
@@ -21,11 +24,12 @@ namespace tema7
             InitializeToolStripsUI();
             InitializeColorPickerUI();
             InitializeGridViewUI();
+            InitializeSceneUI();
         }
 
         private void InitializeGridViewUI()
         {
-            
+
             this.groupBox.Size = new Size(ClientSize.Width - colorGrid.Width - 30, ClientSize.Height);
             this.groupBox.Location = new Point(0, 60);
             this.groupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
@@ -39,8 +43,10 @@ namespace tema7
 
         private void InitializeColorPickerUI()
         {
-            colorGrid = new Cyotek.Windows.Forms.ColorGrid();
-            colorGrid.Size = new Size(300, 200);
+            colorGrid = new Cyotek.Windows.Forms.ColorGrid
+            {
+                Size = new Size(300, 200)
+            };
             colorGrid.Location = new Point(ClientSize.Width - colorGrid.Width - 30, ClientSize.Height - colorGrid.Height - 30);
             colorGrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             colorGrid.Visible = true;
@@ -53,9 +59,22 @@ namespace tema7
             InitializeFileToolStripItems();
             InitializeEditToolStripItems();
             InitializeViewToolStripItems();
+            InitializeFiguresToolStripItems();
 
             // Add event handlers
             AttachEventHandlers();
+        }
+
+        private void InitializeSceneUI()
+        {
+            gridView.BackColor = Color.White;
+            gridView.Paint += (s, e) => scene.Draw(e.Graphics);
+            gridView.MouseDown += DrawingPanel_MouseDown;
+            gridView.MouseMove += DrawingPanel_MouseMove;
+            gridView.MouseUp += DrawingPanel_MouseUp;
+            gridView.scene = scene;
+            scene.SceneChanged += () => gridView.Invalidate();
+            gridView.BringToFront();
         }
 
         private void InitializeFileToolStripItems()
@@ -82,12 +101,12 @@ namespace tema7
                 "Ctrl+S");
 
             // Add to toolstrip
-            this.toolStrip.Items.AddRange(new ToolStripItem[] {
+            this.toolStrip.Items.AddRange([
                 this.toolStrips.newFile,
                 this.toolStrips.openFile,
                 this.toolStrips.saveFile,
                 new ToolStripSeparator()
-            });
+            ]);
         }
 
         private void InitializeEditToolStripItems()
@@ -131,14 +150,14 @@ namespace tema7
                 "Ctrl+V");
 
             // Add to toolstrip
-            this.toolStrip.Items.AddRange(new ToolStripItem[] {
+            this.toolStrip.Items.AddRange([
                 this.toolStrips.undo,
                 this.toolStrips.redo,
                 separator1,
                 this.toolStrips.cut,
                 this.toolStrips.copy,
                 this.toolStrips.paste
-            });
+            ]);
         }
 
         private void InitializeViewToolStripItems()
@@ -230,12 +249,12 @@ namespace tema7
                     Top = 130
                 };
 
-                form.Controls.AddRange(new Control[] {
+                form.Controls.AddRange([
                     sizeLabel, sizeNumeric,
                     snapCheck,
                     colorLabel, colorButton,
                     okButton
-                });
+                ]);
 
                 if (form.ShowDialog() == DialogResult.OK)
                 {
@@ -246,6 +265,7 @@ namespace tema7
                 }
             }
         }
+
         private ToolStripMenuItem CreateToolStripMenuItem(
             string resourceName,
             string name,
@@ -297,6 +317,10 @@ namespace tema7
             public ToolStripMenuItem? redo;
             public ToolStripMenuItem? toggleGrid;
             public ToolStripMenuItem? gridSettings;
+            public ToolStripMenuItem? triangle;
+            public ToolStripMenuItem? square;
+            public ToolStripMenuItem? pentagon;
+            public ToolStripMenuItem? hexagon;
         }
 
         private void NewDocument()
@@ -345,6 +369,62 @@ namespace tema7
         {
             // Implement paste logic
             MessageBox.Show("Pasted from clipboard");
+        }
+
+        private void DrawingPanel_MouseDown(object? sender, MouseEventArgs e)
+        {
+            Console.WriteLine($"Mouse down at {e.Location}");
+            if (e.Button == MouseButtons.Left)
+            {
+                if (figureInProgress != null)
+                {
+                    Console.WriteLine($"Adding figure at {e.Location}");
+                    figureInProgress.Position = e.Location;
+                    scene.AddFigure(figureInProgress);
+                    gridView.Invalidate();
+                    figureInProgress = null;
+                    return;
+                }
+                scene.HandleMouseDown(e.Location);
+            }
+        }
+
+        private void DrawingPanel_MouseMove(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                scene.HandleMouseMove(e.Location);
+            }
+        }
+
+        private void DrawingPanel_MouseUp(object? sender, MouseEventArgs e)
+        {
+            Console.WriteLine($"Mouse up at {e.Location}");
+            if (e.Button == MouseButtons.Left)
+            {
+                scene.HandleMouseUp(e.Location);
+            }
+        }
+
+        private void InitializeFiguresToolStripItems()
+        {
+            this.toolStrips.square = CreateToolStripMenuItem(
+                "SquareImage",
+                "square",
+                "",
+                "");
+
+            this.toolStrips.square.Click += (s, e) =>
+            {
+                Console.WriteLine("Square selected");
+                figureInProgress = new Square
+                {
+                    Position = Point.Empty, // Will be set on mouse down
+                    StrokeColor = Color.Blue,
+                    StrokeWidth = 2f
+                };
+            };
+            this.toolStrip.Items.Add(this.toolStrips.square);
         }
     }
 }

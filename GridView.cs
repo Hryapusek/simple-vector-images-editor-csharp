@@ -2,104 +2,114 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.ComponentModel;
 
-public class GridView : Control
+namespace tema7
 {
-  // Grid properties
-  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-  // Grid properties
-  public bool ShowGrid { get; set; } = true;
-  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-  public int GridSize { get; set; } = 20;
-  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-  public Color GridColor { get; set; } = Color.FromArgb(240, 240, 240);
-  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-  public Color MajorGridLineColor { get; set; } = Color.FromArgb(220, 220, 220);
-  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-  public int MajorGridLineInterval { get; set; } = 5;
-  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-  public bool SnapToGrid { get; set; } = true;
-
-  // Background color
-  [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-
-  // Background color
-  public Color BackgroundColor { get; set; } = Color.White;
-
-  public GridView()
+  public class GridView : Control
   {
-    this.DoubleBuffered = true; // Prevent flickering
-    this.SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                 ControlStyles.AllPaintingInWmPaint |
-                 ControlStyles.UserPaint, true);
-  }
+    // Grid properties
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    // Grid properties
+    public bool ShowGrid { get; set; } = true;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public int GridSize { get; set; } = 20;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public Color GridColor { get; set; } = Color.FromArgb(240, 240, 240);
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public Color MajorGridLineColor { get; set; } = Color.FromArgb(220, 220, 220);
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public int MajorGridLineInterval { get; set; } = 5;
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    public bool SnapToGrid { get; set; } = true;
 
-  protected override void OnPaint(PaintEventArgs e)
-  {
-    base.OnPaint(e);
+    // Background color
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 
-    // Clear with background color
-    e.Graphics.Clear(BackgroundColor);
+    // Background color
+    public Color BackgroundColor { get; set; } = Color.White;
 
-    if (ShowGrid)
+    public Scene scene;
+
+    public GridView()
     {
-      DrawGrid(e.Graphics);
+      this.DoubleBuffered = true; // Prevent flickering
+      this.SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                   ControlStyles.AllPaintingInWmPaint |
+                   ControlStyles.UserPaint, true);
     }
-  }
 
-  private void DrawGrid(Graphics g)
-  {
-    // Draw minor grid lines
-    using (var gridPen = new Pen(GridColor))
+    protected override void OnPaint(PaintEventArgs e)
     {
-      // Vertical lines
-      for (int x = 0; x < Width; x += GridSize)
+      base.OnPaint(e);
+
+      // Clear with background color
+      e.Graphics.Clear(BackgroundColor);
+
+      if (ShowGrid)
       {
-        g.DrawLine(gridPen, x, 0, x, Height);
+        DrawGrid(e.Graphics);
       }
 
-      // Horizontal lines
-      for (int y = 0; y < Height; y += GridSize)
+      if (scene != null)
       {
-        g.DrawLine(gridPen, 0, y, Width, y);
+        scene.Draw(e.Graphics);
       }
     }
 
-    // Draw major grid lines
-    using (var majorGridPen = new Pen(MajorGridLineColor, 1.5f))
+    private void DrawGrid(Graphics g)
     {
-      int majorGridSize = GridSize * MajorGridLineInterval;
-
-      // Vertical lines
-      for (int x = 0; x < Width; x += majorGridSize)
+      // Draw minor grid lines
+      using (var gridPen = new Pen(GridColor))
       {
-        g.DrawLine(majorGridPen, x, 0, x, Height);
+        // Vertical lines
+        for (int x = 0; x < Width; x += GridSize)
+        {
+          g.DrawLine(gridPen, x, 0, x, Height);
+        }
+
+        // Horizontal lines
+        for (int y = 0; y < Height; y += GridSize)
+        {
+          g.DrawLine(gridPen, 0, y, Width, y);
+        }
       }
 
-      // Horizontal lines
-      for (int y = 0; y < Height; y += majorGridSize)
+      // Draw major grid lines
+      using (var majorGridPen = new Pen(MajorGridLineColor, 1.5f))
       {
-        g.DrawLine(majorGridPen, 0, y, Width, y);
+        int majorGridSize = GridSize * MajorGridLineInterval;
+
+        // Vertical lines
+        for (int x = 0; x < Width; x += majorGridSize)
+        {
+          g.DrawLine(majorGridPen, x, 0, x, Height);
+        }
+
+        // Horizontal lines
+        for (int y = 0; y < Height; y += majorGridSize)
+        {
+          g.DrawLine(majorGridPen, 0, y, Width, y);
+        }
       }
     }
-  }
 
-  public Point SnapPoint(Point point)
-  {
-    if (!SnapToGrid) return point;
+    public Point SnapPoint(Point point)
+    {
+      if (!SnapToGrid) return point;
 
-    return new Point(
-        (int)(Math.Round((float)point.X / GridSize) * GridSize),
-        (int)(Math.Round((float)point.Y / GridSize) * GridSize));
-  }
+      return new Point(
+          (int)(Math.Round((float)point.X / GridSize) * GridSize),
+          (int)(Math.Round((float)point.Y / GridSize) * GridSize));
+    }
 
-  public Rectangle SnapRectangle(Rectangle rect)
-  {
-    if (!SnapToGrid) return rect;
+    public Rectangle SnapRectangle(Rectangle rect)
+    {
+      if (!SnapToGrid) return rect;
 
-    Point snappedLocation = SnapPoint(rect.Location);
-    int width = (int)(Math.Round((float)rect.Width / GridSize) * GridSize);
-    int height = (int)(Math.Round((float)rect.Height / GridSize) * GridSize);
+      Point snappedLocation = SnapPoint(rect.Location);
+      int width = (int)(Math.Round((float)rect.Width / GridSize) * GridSize);
+      int height = (int)(Math.Round((float)rect.Height / GridSize) * GridSize);
 
-    return new Rectangle(snappedLocation, new Size(width, height));
+      return new Rectangle(snappedLocation, new Size(width, height));
+    }
   }
 }

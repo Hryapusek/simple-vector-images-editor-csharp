@@ -7,5 +7,11 @@
     <Compile Update="GridView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="Figure.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="Scene.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

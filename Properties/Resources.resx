@@ -130,17 +130,29 @@
   <data name="GridImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\grid.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="HexagonImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\hexagon.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="NewDocumentImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\new-document.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="PasteImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\paste.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="PentagonImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\pentagon.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="RedoImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\redo-alt.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="SaveImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\disk.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SquareImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\square.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="TriangleImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\triangle.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="UndoImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\undo-alt.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
