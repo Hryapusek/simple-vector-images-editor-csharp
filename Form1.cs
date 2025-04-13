@@ -2,21 +2,42 @@ namespace tema7
 {
     public partial class Form1 : Form
     {
-        ToolStrips toolStrips = new ToolStrips();
+        ToolStrips toolStrips = new();
+        Cyotek.Windows.Forms.ColorGrid colorGrid;
+        GridView gridView = new();
+
         public Form1()
         {
             InitializeComponent();
             InitializeUI();
-            // var colorPicker = new Cyotek.Windows.Forms.ColorEditor();
-            // colorPicker.Location = new Point(30, 30);
-            // colorPicker.Visible = true;
-            // colorPicker.Size = new Size(300, 200);
-            // Controls.Add(colorPicker);
         }
 
         private void InitializeUI()
         {
+            this.MinimumSize = new Size(1400, 800);
+            this.MaximumSize = new Size(1400, 800);
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             InitializeToolStripsUI();
+            InitializeColorPickerUI();
+            InitializeGridViewUI();
+        }
+
+        private void InitializeGridViewUI()
+        {
+            gridView.Size = new Size(ClientSize.Width - colorGrid.Width - 30, ClientSize.Height);
+            gridView.Location = new Point(0, 60);
+            gridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            Controls.Add(gridView);
+        }
+
+        private void InitializeColorPickerUI()
+        {
+            colorGrid = new Cyotek.Windows.Forms.ColorGrid();
+            colorGrid.Size = new Size(300, 200);
+            colorGrid.Location = new Point(ClientSize.Width - colorGrid.Width - 30, ClientSize.Height - colorGrid.Height - 30);
+            colorGrid.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            colorGrid.Visible = true;
+            Controls.Add(colorGrid);
         }
 
         private void InitializeToolStripsUI()
@@ -24,6 +45,7 @@ namespace tema7
             // Create and configure the tool strip items
             InitializeFileToolStripItems();
             InitializeEditToolStripItems();
+            InitializeViewToolStripItems();
 
             // Add event handlers
             AttachEventHandlers();
@@ -112,6 +134,111 @@ namespace tema7
             });
         }
 
+        private void InitializeViewToolStripItems()
+        {
+            // Toggle Grid Visibility
+            this.toolStrips.toggleGrid = new ToolStripMenuItem();
+            this.toolStrips.toggleGrid.Text = "Toggle Grid";
+            this.toolStrips.toggleGrid.CheckOnClick = true;
+            this.toolStrips.toggleGrid.Checked = true;
+            this.toolStrips.toggleGrid.Click += (s, e) =>
+            {
+                gridView.ShowGrid = !gridView.ShowGrid;
+                gridView.Invalidate();
+            };
+
+            // Grid Settings
+            this.toolStrips.gridSettings = new ToolStripMenuItem();
+            this.toolStrips.gridSettings.Text = "Grid Settings...";
+            this.toolStrips.gridSettings.Click += ShowGridSettingsDialog;
+
+            // Add to menu
+            var viewMenu = new ToolStripMenuItem("Grid");
+            var res = Properties.Resources.ResourceManager.GetObject("GridImage") as byte[];
+            if (res != null)
+            {
+                viewMenu.Image = Image.FromStream(new MemoryStream(res));
+                viewMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+            }
+            viewMenu.DropDownItems.AddRange(new ToolStripItem[] {
+                this.toolStrips.toggleGrid,
+                this.toolStrips.gridSettings
+            });
+
+            this.toolStrip.Items.Add(viewMenu);
+        }
+
+        private void ShowGridSettingsDialog(object? sender, EventArgs e)
+        {
+            using (var form = new Form())
+            {
+                form.Text = "Grid Settings";
+                form.Size = new Size(300, 200);
+                form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                form.StartPosition = FormStartPosition.CenterParent;
+
+                var sizeLabel = new Label { Text = "Grid Size:", Left = 20, Top = 20 };
+                var sizeNumeric = new NumericUpDown
+                {
+                    Minimum = 5,
+                    Maximum = 100,
+                    Value = gridView.GridSize,
+                    Left = 120,
+                    Top = 20
+                };
+
+                var snapCheck = new CheckBox
+                {
+                    Text = "Snap to Grid",
+                    Checked = gridView.SnapToGrid,
+                    Left = 20,
+                    Top = 60
+                };
+
+                var colorLabel = new Label { Text = "Grid Color:", Left = 20, Top = 90 };
+                var colorButton = new Button
+                {
+                    Text = "Choose...",
+                    Left = 120,
+                    Top = 90,
+                    BackColor = gridView.GridColor
+                };
+
+                colorButton.Click += (s, ev) =>
+                {
+                    using (var colorDialog = new ColorDialog())
+                    {
+                        if (colorDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            colorButton.BackColor = colorDialog.Color;
+                        }
+                    }
+                };
+
+                var okButton = new Button
+                {
+                    Text = "OK",
+                    DialogResult = DialogResult.OK,
+                    Left = 120,
+                    Top = 130
+                };
+
+                form.Controls.AddRange(new Control[] {
+                    sizeLabel, sizeNumeric,
+                    snapCheck,
+                    colorLabel, colorButton,
+                    okButton
+                });
+
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    gridView.GridSize = (int)sizeNumeric.Value;
+                    gridView.SnapToGrid = snapCheck.Checked;
+                    gridView.GridColor = colorButton.BackColor;
+                    gridView.Invalidate();
+                }
+            }
+        }
         private ToolStripMenuItem CreateToolStripMenuItem(
             string resourceName,
             string name,
@@ -162,10 +289,8 @@ namespace tema7
             public ToolStripMenuItem paste;
             public ToolStripMenuItem undo;
             public ToolStripMenuItem redo;
-            public List<ToolStripMenuItem> GetAllToolStrips()
-            {
-                return new List<ToolStripMenuItem> { newFile, openFile, saveFile, cut, copy, paste, undo, redo };
-            }
+            public ToolStripMenuItem toggleGrid;
+            public ToolStripMenuItem gridSettings;
         }
 
         private void NewDocument()
