@@ -9,25 +9,21 @@ namespace tema7
     private const int HandleSize = 10; // Selection handle size
     private const int HitTestMargin = 15; // Area around handles for easier selection
 
-    public int Size
-    {
-      get => _size;
-      set
-      {
-        if (_size != value && value > 0)
-        {
-          _size = value;
-          NotifyChanged();
-        }
-      }
+    public override Size Size 
+{
+    get => new Size(_size, _size);
+    set {
+      _size = Math.Max(10, value.Width); // Ignore height, enforce minimum
+      NotifyChanged();
     }
+}
 
     public override void Draw(Graphics g, bool isSelected)
     {
       // Draw the square
       using (var pen = new Pen(StrokeColor, StrokeWidth))
       {
-        g.DrawRectangle(pen, Position.X, Position.Y, Size, Size);
+        g.DrawRectangle(pen, Position.X, Position.Y, _size, _size);
       }
 
       // Draw selection handles if selected
@@ -39,7 +35,7 @@ namespace tema7
 
     public override bool Contains(Point point)
     {
-      var rect = new Rectangle(Position.X, Position.Y, Size, Size);
+      var rect = new Rectangle(Position.X, Position.Y, _size, _size);
       return rect.Contains(point);
     }
 
@@ -52,8 +48,8 @@ namespace tema7
           HitTestMargin, HitTestMargin);
 
       var bottomRight = new Rectangle(
-          Position.X + Size - HitTestMargin / 2,
-          Position.Y + Size - HitTestMargin / 2,
+          Position.X + _size - HitTestMargin / 2,
+          Position.Y + _size - HitTestMargin / 2,
           HitTestMargin, HitTestMargin);
 
       if (topLeft.Contains(point)) return OperationType.ResizeTopLeft;
@@ -69,6 +65,45 @@ namespace tema7
       NotifyChanged();
     }
 
+    public override void ApplyTransform(Point delta, OperationType operation)
+    {
+      switch (operation)
+      {
+        case OperationType.ResizeTopLeft:
+          Position = new Point(Position.X + delta.X, Position.Y + delta.X);
+          _size = Math.Max(10, _size - delta.X);
+          break;
+
+        case OperationType.ResizeBottomRight:
+          _size = Math.Max(10, _size + delta.X);
+          break;
+
+        case OperationType.ResizeTopRight:
+          Position = new Point(Position.X, Position.Y + delta.Y);
+          _size = Math.Max(10, _size + delta.X);
+          break;
+
+        case OperationType.ResizeBottomLeft:
+          Position = new Point(Position.X + delta.X, Position.Y);
+          _size = Math.Max(10, _size + delta.Y);
+          break;
+        
+        case OperationType.Move:
+          Move(delta.X, delta.Y);
+          break;
+      }
+      NotifyChanged();
+    }
+
+    public override TransformationState GetTransformationState()
+    {
+        return new TransformationState 
+        {
+            Position = this.Position,
+            Size = (this as Figure).Size
+        };
+    }
+
     public override void Resize(int dx, int dy, OperationType resizeMode)
     {
       int delta = Math.Max(Math.Abs(dx), Math.Abs(dy));
@@ -78,21 +113,21 @@ namespace tema7
       {
         case OperationType.ResizeTopLeft:
           Position = new Point(Position.X + delta, Position.Y + delta);
-          Size = Math.Max(10, Size - delta);
+          _size = Math.Max(10, _size - delta);
           break;
 
         case OperationType.ResizeBottomRight:
-          Size = Math.Max(10, Size + delta);
+          _size = Math.Max(10, _size + delta);
           break;
 
         case OperationType.ResizeTopRight:
           Position = new Point(Position.X, Position.Y + delta);
-          Size = Math.Max(10, Size - delta);
+          _size = Math.Max(10, _size - delta);
           break;
 
         case OperationType.ResizeBottomLeft:
           Position = new Point(Position.X + delta, Position.Y);
-          Size = Math.Max(10, Size - delta);
+          _size = Math.Max(10, _size - delta);
           break;
       }
       NotifyChanged();
@@ -122,8 +157,8 @@ namespace tema7
 
         // Bottom-right handle
         g.FillRectangle(brush,
-            Position.X + Size - HandleSize / 2,
-            Position.Y + Size - HandleSize / 2,
+            Position.X + _size - HandleSize / 2,
+            Position.Y + _size - HandleSize / 2,
             HandleSize, HandleSize);
       }
     }

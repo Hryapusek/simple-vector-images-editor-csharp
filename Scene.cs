@@ -1,6 +1,39 @@
 
 namespace tema7
 {
+  public class TransformationInfo
+  {
+    public Figure TargetFigure { get; }
+    public TransformationState OriginalState { get; }
+    public Point StartMousePosition { get; }
+    private Point LastMousePosition { get; set; }
+    public OperationType Operation { get; }
+
+    public TransformationInfo(Figure figure, Point mousePos, OperationType operation)
+    {
+      TargetFigure = figure;
+      OriginalState = figure.GetTransformationState();
+      StartMousePosition = mousePos;
+      Operation = operation;
+      LastMousePosition = mousePos;
+    }
+
+    public void ApplyDelta(Point currentMousePos)
+    {
+      Point delta = new Point(
+          currentMousePos.X - LastMousePosition.X,
+          currentMousePos.Y - LastMousePosition.Y);
+
+      TargetFigure.ApplyTransform(delta, Operation);
+      LastMousePosition = currentMousePos;
+    }
+
+    public void RestoreOriginal()
+    {
+      TargetFigure.Position = OriginalState.Position;
+      TargetFigure.Size = OriginalState.Size;
+    }
+  }
   public class Scene
   {
     public List<Figure> Figures { get; } = new List<Figure>();
@@ -8,7 +41,7 @@ namespace tema7
     public event Action? SceneChanged;
 
     private Point? dragStartPosition;
-    private OperationType currentOperation;
+    private TransformationInfo? currentTransform;
 
     // Handle mouse down for selection
     public void HandleMouseDown(Point mousePos)
@@ -22,7 +55,17 @@ namespace tema7
         return;
       }
       Console.WriteLine($"Selected figure at {mousePos}");
-      currentOperation = SelectedFigure.HitTest(mousePos);
+      var currentOperation = SelectedFigure.HitTest(mousePos);
+      if (currentOperation == OperationType.None)
+      {
+        Console.WriteLine("No operation selected");
+        SceneChanged?.Invoke();
+        return;
+      }
+      else
+      {
+        currentTransform = new TransformationInfo(SelectedFigure, mousePos, currentOperation);
+      }
       dragStartPosition = mousePos;
       SceneChanged?.Invoke();
     }
@@ -30,32 +73,14 @@ namespace tema7
     // Handle mouse move for dragging
     public void HandleMouseMove(Point mousePos)
     {
-      Console.WriteLine($"Mouse move at {mousePos}");
-      if (currentOperation == OperationType.None)
+      if (currentTransform == null || SelectedFigure == null)
       {
-        Console.WriteLine("No operation in progress");
+        Console.WriteLine("No transformation in progress or no figure selected");
         return;
       }
-      if (SelectedFigure != null)
-      {
-        Console.WriteLine($"Current operation: {currentOperation}");
-        if (currentOperation == OperationType.Move)
-        {
-          var dx = mousePos.X - dragStartPosition!.Value.X;
-          var dy = mousePos.Y - dragStartPosition.Value.Y;
-          Console.WriteLine($"Moving figure by ({dx}, {dy})");
-          SelectedFigure.Move(dx, dy);
-        }
-        else
-        {
-          var dx = mousePos.X - dragStartPosition!.Value.X;
-          var dy = mousePos.Y - dragStartPosition.Value.Y;
-          Console.WriteLine($"Resizing figure by ({dx}, {dy}) using {currentOperation}");
-          SelectedFigure.Resize(dx, dy, currentOperation);
-        }
-        dragStartPosition = mousePos;
-        SceneChanged?.Invoke();
-      }
+      Console.WriteLine($"Current operation: {currentTransform.Operation} at {mousePos}");
+      currentTransform.ApplyDelta(mousePos);
+      SceneChanged?.Invoke();
     }
 
     // Handle mouse up for releasing selection
