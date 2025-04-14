@@ -24,7 +24,6 @@ namespace tema7
     public override void Draw(Graphics g, bool isSelected)
     {
       // Draw the square
-      Console.WriteLine($"Drawing square at {Position} with size {_size} and color {StrokeColor}");
       using (var pen = new Pen(StrokeColor, StrokeWidth))
       {
         g.DrawRectangle(pen, Position.X, Position.Y, _size, _size);

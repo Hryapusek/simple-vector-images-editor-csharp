@@ -31,7 +31,7 @@ namespace tema7
         {
 
             this.groupBox.Size = new Size(ClientSize.Width - colorGrid.Width - 30, ClientSize.Height);
-            this.groupBox.Location = new Point(0, 60);
+            this.groupBox.Location = new Point(0, 30);
             this.groupBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
 
             this.gridView.Size = new Size(groupBox.Width, groupBox.Height);
