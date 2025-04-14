@@ -107,6 +107,18 @@ namespace tema7
       }
     }
 
+    public void Clear()
+    {
+      Figures.Clear();
+      SelectedFigure = null;
+      dragStartPosition = null;
+      currentTransform = null;
+      _clipboardFigure = null;
+      _undoStack.Clear();
+      _redoStack.Clear();
+      SceneChanged?.Invoke();
+    }
+
     // Handle mouse down for selection
     public void HandleMouseDown(Point mousePos)
     {

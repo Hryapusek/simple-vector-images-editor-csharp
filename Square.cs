@@ -1,10 +1,12 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Text.Json.Serialization;
 
 namespace tema7
 {
   public class Square : Figure
   {
+    [JsonInclude]
     private int _size = 100; // Default size
     private const int HandleSize = 10; // Selection handle size
     private const int HitTestMargin = 15; // Area around handles for easier selection
@@ -22,6 +24,7 @@ namespace tema7
     public override void Draw(Graphics g, bool isSelected)
     {
       // Draw the square
+      Console.WriteLine($"Drawing square at {Position} with size {_size} and color {StrokeColor}");
       using (var pen = new Pen(StrokeColor, StrokeWidth))
       {
         g.DrawRectangle(pen, Position.X, Position.Y, _size, _size);

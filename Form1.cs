@@ -6,8 +6,9 @@ namespace tema7
         Cyotek.Windows.Forms.ColorGrid? colorGrid;
         GridView gridView = new();
         GroupBox groupBox = new();
-        readonly Scene scene = new();
+        Scene scene = new();
         Figure? figureInProgress;
+        private string? currentFilePath = null;
 
         public Form1()
         {
@@ -325,20 +326,109 @@ namespace tema7
 
         private void NewDocument()
         {
-            // Clear the drawing canvas
-            MessageBox.Show("New document created");
+            if (scene.Figures.Count > 0)
+            {
+                var result = MessageBox.Show("Save current document before creating new one?",
+                                           "Unsaved Changes",
+                                           MessageBoxButtons.YesNoCancel);
+
+                if (result == DialogResult.Yes)
+                {
+                    SaveDocument();
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
+
+            scene = new Scene();
+            gridView.scene = scene;
+            scene.SceneChanged += () => gridView.Invalidate();
+            UpdateWindowTitle("Untitled");
+            MessageBox.Show("New document created", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void OpenDocument()
         {
-            // Implement file open logic
-            MessageBox.Show("Open document");
+            using (var openDialog = new OpenFileDialog())
+            {
+                openDialog.Filter = "Scene Files (*.scene)|*.scene|All Files (*.*)|*.*";
+                openDialog.DefaultExt = "scene";
+                openDialog.Title = "Open Vector Drawing";
+
+                if (openDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        var newScene = SceneSerializer.LoadFromFile(openDialog.FileName);
+                        scene = newScene;
+                        scene.SceneChanged += () => gridView.Invalidate();
+                        gridView.scene = scene;
+                        gridView.Invalidate();
+                        Console.WriteLine($"Loaded scene with {scene.Figures.Count} figures");
+                        UpdateWindowTitle(openDialog.FileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to open file: {ex.Message}",
+                                      "Error",
+                                      MessageBoxButtons.OK,
+                                      MessageBoxIcon.Error);
+                    }
+                }
+            }
         }
 
         private void SaveDocument()
         {
-            // Implement file save logic
-            MessageBox.Show("Document saved");
+            if (string.IsNullOrEmpty(currentFilePath))
+            {
+                SaveDocumentAs();
+            }
+            else
+            {
+                try
+                {
+                    SceneSerializer.SaveToFile(scene, currentFilePath);
+                    UpdateWindowTitle(currentFilePath);
+                    MessageBox.Show("Document saved successfully",
+                                   "Success",
+                                   MessageBoxButtons.OK,
+                                   MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to save file: {ex.Message}",
+                                  "Error",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void SaveDocumentAs()
+        {
+            using (var saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Filter = "Scene Files (*.scene)|*.scene|All Files (*.*)|*.*";
+                saveDialog.DefaultExt = "scene";
+                saveDialog.Title = "Save Vector Drawing";
+                saveDialog.AddExtension = true;
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    currentFilePath = saveDialog.FileName;
+                    SaveDocument();
+                }
+            }
+        }
+
+        private void UpdateWindowTitle(string filePath)
+        {
+            string title = Path.GetFileNameWithoutExtension(filePath);
+            if (string.IsNullOrEmpty(title)) title = "Untitled";
+            this.Text = $"{title} - Vector Editor";
         }
 
         private void UndoAction()

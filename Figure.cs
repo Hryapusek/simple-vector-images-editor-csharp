@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace tema7
 {
   public enum OperationType
@@ -9,6 +11,9 @@ namespace tema7
     ResizeBottomLeft,
     ResizeBottomRight
   }
+
+  [JsonPolymorphic]
+  [JsonDerivedType(typeof(Square), typeDiscriminator: "square")]
   public abstract class Figure
   {
     private Point position;
@@ -22,6 +27,7 @@ namespace tema7
       }
     }
 
+    [JsonConverter(typeof(ColorJsonConverter))]
     private Color strokeColor = Color.Black;
     public Color StrokeColor
     {
