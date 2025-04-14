@@ -13,7 +13,10 @@ namespace tema7
   }
 
   [JsonPolymorphic]
-  [JsonDerivedType(typeof(Square), typeDiscriminator: "square")]
+  [JsonDerivedType(typeof(Square), "Square")]
+  [JsonDerivedType(typeof(RegularHexagon), "RegularHexagon")]
+  [JsonDerivedType(typeof(RegularPentagon), "RegularPentagon")]
+  [JsonDerivedType(typeof(RegularTriangle), "RegularTriangle")]
   public abstract class Figure
   {
     private Point position;

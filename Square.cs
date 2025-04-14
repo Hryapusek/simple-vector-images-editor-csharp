@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace tema7
 {
+  [JsonDerivedType(typeof(Square), typeDiscriminator: "square")]
   public class Square : Figure
   {
     [JsonInclude]

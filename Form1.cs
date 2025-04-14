@@ -511,6 +511,60 @@ namespace tema7
                 };
             };
             this.toolStrip.Items.Add(this.toolStrips.square);
+        
+            this.toolStrips.pentagon = CreateToolStripMenuItem(
+                "PentagonImage",
+                "pentagon",
+                "",
+                "");
+
+            this.toolStrips.pentagon.Click += (s, e) =>
+            {
+                Console.WriteLine("Pentagon selected");
+                figureInProgress = new RegularPentagon
+                {
+                    Position = Point.Empty, // Will be set on mouse down
+                    StrokeColor = Color.Blue,
+                    StrokeWidth = 2f
+                };
+            };
+            this.toolStrip.Items.Add(this.toolStrips.pentagon);
+
+            this.toolStrips.hexagon = CreateToolStripMenuItem(
+                "HexagonImage",
+                "hexagon",
+                "",
+                "");
+
+            this.toolStrips.hexagon.Click += (s, e) =>
+            {
+                Console.WriteLine("Hexagon selected");
+                figureInProgress = new RegularHexagon
+                {
+                    Position = Point.Empty, // Will be set on mouse down
+                    StrokeColor = Color.Blue,
+                    StrokeWidth = 2f
+                };
+            };
+            this.toolStrip.Items.Add(this.toolStrips.hexagon);
+
+            this.toolStrips.triangle = CreateToolStripMenuItem(
+                "TriangleImage",
+                "triangle",
+                "",
+                "");
+
+            this.toolStrips.triangle.Click += (s, e) =>
+            {
+                Console.WriteLine("Triangle selected");
+                figureInProgress = new RegularTriangle
+                {
+                    Position = Point.Empty, // Will be set on mouse down
+                    StrokeColor = Color.Blue,
+                    StrokeWidth = 2f
+                };
+            };
+            this.toolStrip.Items.Add(this.toolStrips.triangle);
         }
     }
 }
